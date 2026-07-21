@@ -18,7 +18,7 @@ class NetworkDataExtract:
 
     def csv_tojson_converter(self,file_path):
         try:
-            data=pd.read_csv(file_path)
+            data = pd.read_csv(file_path)
             data.reset_index(drop=True,inplace=True)
             records=list(json.loads(data.T.to_json()).values()) # Convert DataFrame → JSON → Dictionary → List
             return records
@@ -57,8 +57,9 @@ if __name__ == '__main__':
     DATABASE = "NetworkSecurityDB"
     COLLECTION = "phishing_data"
     networkObj = NetworkDataExtract()
-    records=networkObj.csv_tojson_converter(file_path=FILE_PATH)
+    records = networkObj.csv_tojson_converter(file_path = E_PATH)
     print(records[:5])     # Show first 5 records
-    no_of_records=networkObj.insert_data_mongodb(records,DATABASE,COLLECTION)
+    no_of_records = networkObj.insert_data_mongodb(records,DATABASE,COLLECTION)
     print(no_of_records)
 
+ 
