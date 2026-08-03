@@ -80,4 +80,87 @@ class DataIngestionConfig:
 
         self.train_test_split_ratio: float = training_pipeline.DATA_INGESTION_TRAIN_TEST_SPLIT_RATION
         self.collection_name: str = training_pipeline.DATA_INGESTION_COLLECTION_NAME
-        self.database_name: str = training_pipeline.DATA_INGESTION_DATABASE_NAME
+        self.database_name: str = training_pipeline.DATA_INGESTION_DATABASE_NAME 
+
+
+class DataValidationConfig:
+    """
+    Create all configuration paths and settings required for data validation.
+
+    This class defines:
+    - Where the validated train.csv and test.csv files will be saved.
+    - Where the invalid train.csv and test.csv files will be saved.
+    - Where the data drift report (report.yaml) will be generated.
+
+    Example:
+        Artifacts/
+            07_21_2026_18_30_45/
+                data_validation/
+                    validated/
+                        train.csv
+                        test.csv
+                    invalid/
+                        train.csv
+                        test.csv
+                    drift_report/
+                        report.yaml
+    """
+
+    def __init__(self, training_pipeline_config: TrainingPipelineConfig):
+
+        # Root folder for data validation
+        # Artifacts/07_21_2026_18_30_45/data_validation
+        self.data_validation_dir: str = os.path.join(
+            training_pipeline_config.artifact_dir,
+            training_pipeline.DATA_VALIDATION_DIR_NAME
+        )
+
+        # Folder where validated train.csv and test.csv will be stored
+        # Artifacts/07_21_2026_18_30_45/data_validation/validated/
+        self.valid_data_dir: str = os.path.join(
+            self.data_validation_dir,
+            training_pipeline.DATA_VALIDATION_VALID_DIR
+        )
+
+        # Folder where invalid train.csv and test.csv will be stored
+        # Artifacts/07_21_2026_18_30_45/data_validation/invalid/
+        self.invalid_data_dir: str = os.path.join(
+            self.data_validation_dir,
+            training_pipeline.DATA_VALIDATION_INVALID_DIR
+        )
+
+        # Path where the validated training dataset will be saved
+        # Artifacts/07_21_2026_18_30_45/data_validation/validated/train.csv
+        self.valid_train_file_path: str = os.path.join(
+            self.valid_data_dir,
+            training_pipeline.TRAIN_FILE_NAME
+        )
+
+        # Path where the validated testing dataset will be saved
+        # Artifacts/07_21_2026_18_30_45/data_validation/validated/test.csv
+        self.valid_test_file_path: str = os.path.join(
+            self.valid_data_dir,
+            training_pipeline.TEST_FILE_NAME
+        )
+
+        # Path where the invalid training dataset will be saved
+        # Artifacts/07_21_2026_18_30_45/data_validation/invalid/train.csv
+        self.invalid_train_file_path: str = os.path.join(
+            self.invalid_data_dir,
+            training_pipeline.TRAIN_FILE_NAME
+        )
+
+        # Path where the invalid testing dataset will be saved
+        # Artifacts/07_21_2026_18_30_45/data_validation/invalid/test.csv
+        self.invalid_test_file_path: str = os.path.join(
+            self.invalid_data_dir,
+            training_pipeline.TEST_FILE_NAME
+        )
+        
+        # Path where the data drift report will be generated
+        # Artifacts/07_21_2026_18_30_45/data_validation/drift_report/report.yaml
+        self.drift_report_file_path: str = os.path.join(
+            self.data_validation_dir,
+            training_pipeline.DATA_VALIDATION_DRIFT_REPORT_DIR,
+            training_pipeline.DATA_VALIDATION_DRIFT_REPORT_FILE_NAME
+        )
