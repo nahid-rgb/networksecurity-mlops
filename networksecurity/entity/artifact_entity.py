@@ -28,3 +28,19 @@ class DataValidationArtifact:
     invalid_train_file_path: str
     invalid_test_file_path: str
     drift_report_file_path: str
+
+
+@dataclass
+class DataTransformationArtifact:
+    """
+    Store the output produced after the data transformation stage.
+
+    This artifact contains:
+    - Path to the saved preprocessing object (preprocessor.pkl).
+    - Path to the transformed training dataset (train.npy).
+    - Path to the transformed testing dataset (test.npy).
+    """
+    
+    transformed_object_file_path: str
+    transformed_train_file_path: str
+    transformed_test_file_path: str
