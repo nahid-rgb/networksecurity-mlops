@@ -221,4 +221,49 @@ class DataTransformationConfig:
             training_pipeline.PREPROCESSING_OBJECT_FILE_NAME
         )
 
+
+class ModelTrainerConfig:
+    """
+    Create all configuration paths and settings required for model training.
+
+    This class defines:
+    - Where the trained model (model.pkl) will be saved.
+    - The expected minimum model accuracy.
+    - The acceptable threshold for overfitting/underfitting.
+
+    Example:
+        Artifacts/
+            08_04_2026_19_30_45/
+                model_trainer/
+                    trained_model/
+                        model.pkl
+    """
+
+    def __init__(self, training_pipeline_config: TrainingPipelineConfig):
+
+        # Root folder for model training
+        # Artifacts/08_04_2026_19_30_45/model_trainer
+        self.model_trainer_dir: str = os.path.join(
+            training_pipeline_config.artifact_dir,
+            training_pipeline.MODEL_TRAINER_DIR_NAME
+        )
+
+        # Path where the trained model will be saved
+        # Artifacts/08_04_2026_19_30_45/model_trainer/trained_model/model.pkl
+        self.trained_model_file_path: str = os.path.join(
+            self.model_trainer_dir,
+            training_pipeline.MODEL_TRAINER_TRAINED_MODEL_DIR,
+            training_pipeline.MODEL_FILE_NAME
+        )
+
+        # Minimum model accuracy required to accept the trained model
+        self.expected_accuracy: float = (
+            training_pipeline.MODEL_TRAINER_EXPECTED_SCORE
+        )
+
+        # Maximum allowed difference between training and testing accuracy
+        # Used to detect overfitting or underfitting
+        self.overfitting_underfitting_threshold: float = (
+            training_pipeline.MODEL_TRAINER_OVER_FIITING_UNDER_FITTING_THRESHOLD
+        )
         

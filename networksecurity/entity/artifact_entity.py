@@ -44,3 +44,30 @@ class DataTransformationArtifact:
     transformed_object_file_path: str
     transformed_train_file_path: str
     transformed_test_file_path: str
+
+
+@dataclass
+class ClassificationMetricArtifact:
+    """
+    Store the classification metrics of a trained model.
+    """
+
+    f1_score: float
+    precision_score: float
+    recall_score: float
+
+    
+@dataclass
+class ModelTrainerArtifact:
+    """
+    Store the output produced after the model training stage.
+
+    This artifact contains:
+    - Path to the trained model.
+    - Training dataset evaluation metrics.
+    - Testing dataset evaluation metrics.
+    """
+
+    trained_model_file_path: str
+    train_metric_artifact: ClassificationMetricArtifact
+    test_metric_artifact: ClassificationMetricArtifact
