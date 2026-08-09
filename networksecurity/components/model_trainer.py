@@ -24,6 +24,11 @@ from sklearn.ensemble import (
 )
 
 import mlflow 
+import dagshub
+
+# Connect this project to the DagsHub repository nd enable remote MLflow experiment tracking
+dagshub.init(repo_owner='nahid-rgb', repo_name='networksecurity-mlops', mlflow=True)
+
 
 class ModelTrainer:
  
@@ -38,9 +43,9 @@ class ModelTrainer:
             raise NetworkSecurityException(e,sys)
 
 
-    def track_mlflow(self, best_model, classificationmetric):
+    def track_mlflow(self, best_model, classificationmetric, run_name):
 
-        with mlflow.start_run():
+        with mlflow.start_run(run_name=run_name):
             f1_score = classificationmetric.f1_score
             precision_score = classificationmetric.precision_score
             recall_score = classificationmetric.recall_score
@@ -110,13 +115,13 @@ class ModelTrainer:
         classification_train_metric = get_classification_score(y_true=y_train,y_pred=y_train_pred)
 
         # Track the experiements with mlflow
-        self.track_mlflow(best_model, classification_train_metric)
+        self.track_mlflow(best_model, classification_train_metric, run_name="Training Metrics")
 
         y_test_pred = best_model.predict(X_test)
         classification_test_metric = get_classification_score(y_true=y_test,y_pred=y_test_pred)
 
         # Track the experiements with mlflow
-        self.track_mlflow(best_model,classification_test_metric)
+        self.track_mlflow(best_model, classification_test_metric , run_name="Testing Metrics")
 
 
         # Load the saved preprocessing object (KNNImputer pipeline)
@@ -132,6 +137,9 @@ class ModelTrainer:
         # Save the combined NetworkModel object for future prediction/deployment
         # Artifacts/08_06_2026_11_58_09/model_trainer/trained_model/model.pkl
         save_object(self.model_trainer_config.trained_model_file_path, obj=network_model)
+
+        # Model pusher
+        save_object("final_model/model.pkl",best_model)
 
         # Model Trainer Artifact
         model_trainer_artifact = ModelTrainerArtifact(

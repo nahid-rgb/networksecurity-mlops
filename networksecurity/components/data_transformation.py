@@ -112,8 +112,9 @@ class DataTransformation:
 
             # Save the fitted preprocessing pipeline
             save_object(self.data_transformation_config.transformed_object_file_path,preprocessor_object)
+
             # Save another copy for prediction/deployment
-            save_object("final_model/preprocessor.pkl",preprocessor_object,)
+            save_object("final_model/preprocessor.pkl",preprocessor_object)
 
             data_transformation_artifact = DataTransformationArtifact(
                 transformed_object_file_path=self.data_transformation_config.transformed_object_file_path,
