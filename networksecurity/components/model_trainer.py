@@ -26,8 +26,14 @@ from sklearn.ensemble import (
 import mlflow 
 import dagshub
 
+# Get the DagsHub access token from the .env/environment variables
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+
+if dagshub_token is None:
+    raise ValueError("DAGSHUB_TOKEN is not set in the environment.")
+
 # Connect this project to the DagsHub repository nd enable remote MLflow experiment tracking
-dagshub.init(repo_owner='nahid-rgb', repo_name='networksecurity-mlops', mlflow=True)
+dagshub.init(repo_owner='nahid-rgb', repo_name='networksecurity-mlops', mlflow=True, token = dagshub_token)
 
 
 class ModelTrainer:

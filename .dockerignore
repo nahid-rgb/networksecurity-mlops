@@ -1,0 +1,23 @@
+# Environment variables and secrets
+.env
+
+# Local Python virtual environment
+venv/
+.venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Logs
+logs/
+
+# Git files
+.git/
+.gitignore
+
+# Training artifacts
+Artifact/
+
+# Prediction output
+prediction_output/

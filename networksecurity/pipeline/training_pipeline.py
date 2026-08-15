@@ -24,11 +24,18 @@ from networksecurity.entity.artifact_entity import (
     ModelTrainerArtifact
 )
 
+from networksecurity.cloud.huggingface_syncer import HuggingFaceSync
+from networksecurity.cloud.huggingface_auth import authenticate_huggingface
 
 class TrainingPipeline:
 
     def __init__(self):
-        self.training_pipeline_config=TrainingPipelineConfig()
+        self.training_pipeline_config = TrainingPipelineConfig()
+        self.huggingface_sync  = HuggingFaceSync()
+
+
+        # Authenticate with Hugging Face once when the training pipeline starts
+        authenticate_huggingface()
 
 
     def start_data_ingestion(self):
@@ -87,6 +94,39 @@ class TrainingPipeline:
         except Exception as e:
             raise NetworkSecurityException(e,sys)
 
+    def sync_artifact_dir_to_huggingface(self):
+         
+         """Uploads the generated training artifacts to Hugging Face."""
+         try:
+             logging.info("Uploading artifact directory to Hugging Face")
+
+             self.huggingface_sync.upload_folder_to_huggingface(
+                 local_folder = self.training_pipeline_config.artifact_dir,
+                 repository_folder = f"artifact/{self.training_pipeline_config.timestamp }"
+             )
+
+         
+         except Exception as e:
+             raise NetworkSecurityException (e,sys)
+
+
+    def sync_saved_model_dir_to_huggingface(self):
+
+        """Uploads the final trained model and preprocessor to Hugging Face."""
+
+        try:
+            logging.info("Uploading final model directory to Hugging Face")
+
+            self.huggingface_sync.upload_folder_to_huggingface(
+                local_folder=self.training_pipeline_config.model_dir,
+                repository_folder=f"final_model/{self.training_pipeline_config.timestamp}"
+            )
+
+            logging.info("Final model directory uploaded successfully")
+
+        except Exception as e:
+            raise NetworkSecurityException(e, sys)
+
 
     def run_pipeline(self):
         try:
@@ -96,6 +136,12 @@ class TrainingPipeline:
             data_transformation_artifact=self.start_data_transformation(data_validation_artifact=data_validation_artifact)
             model_trainer_artifact=self.start_model_trainer(data_transformation_artifact=data_transformation_artifact)
             logging.info("========== Training Pipeline Completed ==========")
+
+            # Upload training artifacts to Hugging Face
+            self.sync_artifact_dir_to_huggingface()
+
+            # Upload final model and preprocessor to Hugging Face
+            self.sync_saved_model_dir_to_huggingface()
 
             return model_trainer_artifact
 
