@@ -1,0 +1,34 @@
+# GitHub, create a workflow called CI Pipeline. 
+# Whenever someone pushes to main, create an Ubuntu machine.
+# Download my repository onto it. Then run my lint step and test step.        
+
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  # Name of our CI job
+  integration:
+
+    # Name shown in GitHub Actions
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Get code from GitHub  
+      - name: Checkout Code # 
+        uses: actions/checkout@v4
+
+      # Step 2: Check the code
+      # Currently this is just a placeholder
+      - name: Lint code
+        run: echo "Linting repository"
+    
+      # Step 3: Run tests
+      # Currently this is just a placeholder
+      - name: Run unit tests
+        run: echo "Running unit tests"
