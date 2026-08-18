@@ -1,6 +1,5 @@
-# GitHub, create a workflow called CI Pipeline. 
-# Whenever someone pushes to main, create an Ubuntu machine.
-# Download my repository onto it. Then run my lint step and test step.        
+# GitHub, create a workflow called CI Pipeline.
+# Whenever someone pushes to main, run the workflow.
 
 name: CI Pipeline
 
@@ -11,24 +10,59 @@ on:
 
 jobs:
 
-  # Name of our CI job
+  # Continuous Integration
   integration:
 
     # Name shown in GitHub Actions
     name: Continuous Integration
+
+    # GitHub provides an Ubuntu machine
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Get code from GitHub  
-      - name: Checkout Code # 
+
+      # Step 1: Get code from GitHub
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       # Step 2: Check the code
       # Currently this is just a placeholder
       - name: Lint code
         run: echo "Linting repository"
-    
+
       # Step 3: Run tests
       # Currently this is just a placeholder
       - name: Run unit tests
         run: echo "Running unit tests"
+
+
+  # Continuous Delivery
+  build-and-push-dockerhub-image:
+
+    # Name shown in GitHub Actions
+    name: Continuous Delivery
+
+    # Only run if CI succeeds
+    needs: integration
+
+    # GitHub provides another Ubuntu machine
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Step 1: Get code from GitHub
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Login to Docker Hub using GitHub Secrets
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Step 3: Build and push Docker image
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/networksecurity-mlops:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/networksecurity-mlops:latest
