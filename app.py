@@ -109,7 +109,10 @@ async def predict_route(request: Request, file:UploadFile = File(...)): # ... me
 
 # Entry point: starts the Uvicorn server and runs the FastAPI application on port 8000
 if __name__ == "__main__":
-    app_run(app, host="0.0.0.0", port=8000)
+    
+    # Use Render's PORT if it provides one.
+    # If PORT does not exist, use 8000 for local testing.
+    app_run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
 
 
 # uvicorn app:app --reload
