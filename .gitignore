@@ -1,6 +1,15 @@
+# Virtual environment
 venv/
+
+# Environment variables / secrets
 .env
-Artifact/
+
+# Generated ML artifacts
+Artifacts/
+
+# Logs
 logs/
+
+# Python cache
 __pycache__/
 *.pyc

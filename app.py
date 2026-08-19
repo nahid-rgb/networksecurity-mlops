@@ -21,12 +21,11 @@ from networksecurity.pipeline.training_pipeline import TrainingPipeline  # Impor
 
 
 from fastapi.middleware.cors import CORSMiddleware  # Provides CORS support so a frontend from another origin can communicate with this API
-from fastapi import FastAPI, File, UploadFile, Request  # FastAPI creates the API; File and UploadFile will handle uploaded files later
+from fastapi import FastAPI, File, UploadFile, Request, BackgroundTasks  # FastAPI creates the API; File and UploadFile will handle uploaded files later
 from uvicorn import run as app_run  # Uvicorn starts the FastAPI application and listens for incoming HTTP requests
 
 from fastapi.responses import Response  # Used to send a response message back to the client
 from starlette.responses import RedirectResponse  # Used to redirect the user from one URL to another
-
 
 import pandas as pd   
 
@@ -72,15 +71,98 @@ templates = Jinja2Templates(directory="templates") # Creates a Jinja2 template o
 async def index():
     return RedirectResponse(url="/docs")
 
-# Creates the /train GET endpoint that triggers the complete ML training pipeline when requested
-@app.get("/train")
-async def train_route():
+# ============================================================
+# OLD / SYNCHRONOUS TRAINING VERSION — NOT USED
+# ============================================================
+#
+# This version runs the entire training pipeline BEFORE
+# sending a response to the browser.
+#
+# Because our training takes several minutes, the browser
+# has to keep waiting for the training to finish.
+#
+# On Render's FREE tier, the request can take too long and
+# the Render proxy can return 502 Bad Gateway.
+#
+# A paid service with more resources/request limits may
+# reduce or avoid this problem, but for this project we use
+# BackgroundTasks so the browser does not have to wait.
+
+#Creates the /train GET endpoint that triggers the complete ML training pipeline when requested
+# @app.get("/train")
+# async def train_route():
+#     try:
+#         train_pipeline = TrainingPipeline()
+#         train_pipeline.run_pipeline()
+#         return Response("Training is successful")
+#     except Exception as e:
+#         raise NetworkSecurityException(e,sys)          
+
+
+
+# ============================================================
+# BACKGROUND TRAINING
+# ============================================================
+
+# We use BackgroundTasks because the ML training pipeline
+# takes several minutes to finish.
+#
+# If we run the training directly inside /train, the browser
+# has to wait until training finishes.
+#
+# On Render's FREE tier, this long request can timeout and
+# return 502 Bad Gateway.
+#
+# BackgroundTasks allows /train to respond immediately while
+# the training continues in the background.
+#
+# A paid service with more resources/request limits may reduce
+# this problem, but BackgroundTasks is a better approach for
+# handling this long-running operation in our API.
+
+
+# Keeps track of training status
+training_status = "idle"
+
+# Actual ML training
+def run_training():
+
+    global training_status
+
     try:
+        # Training has started
+        training_status = "running"
+
+        # Run the complete ML training pipeline
         train_pipeline = TrainingPipeline()
         train_pipeline.run_pipeline()
-        return Response("Training is successful")
+
+        # Training finished successfully
+        training_status = "completed"
+
     except Exception as e:
-        raise NetworkSecurityException(e,sys)
+        # Training failed
+        training_status = "failed"
+
+        # Show the error in the logs
+        logging.error(f"Training failed: {e}")
+
+# Browser calls this
+@app.get("/train")
+async def train_route(background_tasks: BackgroundTasks):
+
+    # Start training in the background
+    background_tasks.add_task(run_training)
+
+    # Respond to browser immediately
+    return {"message": "Training started"}
+    
+# Browser calls this to check status
+@app.get("/train/status")
+async def train_status():
+
+    return {"status": training_status}
+    
 
 # Creates the /predict POST endpoint that receives an uploaded CSV file and generates predictions
 @app.post("/predict")
