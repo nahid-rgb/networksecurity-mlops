@@ -18,6 +18,7 @@ logs/
 
 # Training artifacts
 Artifact/
+Artifacts/
 
 # Prediction output
 prediction_output/
